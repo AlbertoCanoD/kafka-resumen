@@ -245,3 +245,44 @@ Implicaciones obvias del lag:
 - Tiempos de respuesta en caso de que afecten con los procesos de interacción con el usuario.
 - Consistencia eventual (El mensaje tarda en llegar, debido al lag acumulado).
 
+## 5 - Topics adicionales
+
+### Changelog
+
+Topic especial cuando trabajamos con estados. Se guarda informacion dentro del propio microservicio.
+
+El estado se guarda dentro del "pod", pero para tener una copia de seguridad se almacena dentro de Kafka en los topics changelog.
+
+![Changelog Topic](image.png)
+
+Estos topic tienen tantas particiones como del que aparecen.
+
+Aparecen cuando pasamos de un "flujo/KStream" a una "tabla/KTable".
+
+### Repartition
+
+Aparecen cuando hacemos un cambio de clave en los mensajes(modificar, añadir o crear campo).
+
+### Iniciales
+
+Los utiliza Kafka para manejar su infraestructura.
+
+#### __consumer_offserts
+
+Guarda para cada Consumer-Group, topic o particion, su offset y cuando ha dicho que está en ese offset.
+
+#### __consumer_timestamps
+
+Lo mismo para sincronización.
+
+#### __schemas
+
+Se verá proximamente
+
+### Dead-Letter Queue (DLQ)
+
+Topic donde se escriben mensajes "erróneos", son definidos por el usuario y se deben a excepciones capturadas o que pueden llevar a excepción.
+
+Ejemplo: Precios negativos.
+
+![DLQ Kafka](image-1.png)
