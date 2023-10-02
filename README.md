@@ -83,7 +83,7 @@ Se tienen varios brokers montados en un cluster. Los datos estan replicados medi
 
 ![Apache Kafka vs Confluent Kafka](imagenes/image-3.png)
 
-[Mas información.](https://www.confluent.io/blog/confluent-vs-apache-kafka-for-modern-data-infrastructure/)
+[Apache Kafka vs Confluent Kafka: Most Thorough Comparison](https://double.cloud/blog/posts/2023/04/confluent-kafka-vs-apache-kafka/)
 
 ---
 
@@ -129,7 +129,7 @@ Se pasan modificaciones sobre la entidad.
 
 ![Diferencias entre fact y delta](imagenes/image-5.png)
 
-[Mas información.](https://developer.confluent.io/courses/event-design/fact-vs-delta-events/)
+[Fact vs. Delta Event Types](https://developer.confluent.io/courses/event-design/fact-vs-delta-events/)
 
 ## 3 - Topics y particiones
 
@@ -173,4 +173,75 @@ Kafka es un sistema distribuido pero tiene mecanismos para evitar la duplicidad,
 La política más utilizada es la de At least once, en la que podemos tener mensajes duplicados pero no afectará negativamente de forma severa al rendimiento del sistema.
 
 ![Configuraciones de Brokers](imagenes/image-7.png)
+
+## 4 - Consumer-groups
+
+### ¿Por qué "group"?
+
+Consumer -> Aplicación que lee de un topic de Kafka.
+
+Lo lee a través de un identificador -> Consumer-Group.
+
+Una aplicación puede tener réplicas para que lean del topic en paralelo, permitiendo la escalabilidad horizontal.
+
+Todas las replicas utilizan el mismo identificador de Consumer-Group para no procesar el mensaje dos veces, ni que se pierdan.
+
+Ninguna réplica lee de la misma particion, solo una réplica lee de cada particon. Teniendo un topic de 3 particiones, solo podrá haber 3 réplicas, si hay más estarán paradas.
+
+[Kafka Partitions and Consumer Groups in 6 mins](https://medium.com/javarevisited/kafka-partitions-and-consumer-groups-in-6-mins-9e0e336c6c00)
+
+---
+
+### Rebalanceos y reasignación de particiones
+
+Si una replica cae, se reparte en las particiones de las que leen, el broker espera señales de vida y si no vuelve, se reparte, pese a ser una operacion muy costosa en microservicioes con estado.
+
+**Los rebalanceos solo afectan a los consumidores, son transparentes para los productores.**
+
+---
+
+### Rebobinados
+
+Consiste en que un Consumer-Group reprocese los mensajes desde un punto específico. 
+
+Se le dice al broker que mueva el offset(El punto de procesado actual) de un Consumer-Group.
+
+Casos posibles:
+
+- Al inicio de los tiempos (offset 0 en todas las particiones).
+- Al final (offset máximo en todas las particiones).
+- Al offset X en una particion en específico.
+- A una fecha en especifico
+
+Afectan a un Consumer-Group y a un topic. Ejemplo:
+
+```Si se rebobina a un offset 0 en un <topic, consumer A> no afecta al consumer B. El unico que vuelve a leer todos los mensajes del topic desde el principio es el consumer A.```
+
+#### Motivos para el rebobinado
+
+- Cambio en micro y necesitamos ejecutar la lógica de procesamiento.
+- Rellenar estructuras internas de datos tipo StatefulSet(SS).
+- Pruebas de rendimiento en entornos NFT(Non functional testing).
+- Pérdida de mensajes en producción(Raro que ocurra, segun config del broker).
+
+---
+
+### Lag: Definición, causas e implicaciones
+
+El lag es el número de mensajes pendientes de procesar. El lag se acumula dependiendo del número de topics que tengamos. Ejemplo:
+
+```Tenemos dos colas con 3 mensajes por procesar en cada una.Por lo que el lag es -> 3 + 3 = 6.```
+
+La causa principal es que el consumidor procesa mas lento que la velocidad conjunta de los productores. 
+
+En arquitecturas de tubería se generan cuellos de botella, debido a que en algunos micros se empiezan a acumular mensajes.
+
+En caso realizar un rebobinado puede producirse lag.
+
+El lag es un síntoma malo, y hay que intentar minimizarlo, en los casos en los que los cuellos de botella sean claros.
+
+Implicaciones obvias del lag:
+
+- Tiempos de respuesta en caso de que afecten con los procesos de interacción con el usuario.
+- Consistencia eventual (El mensaje tarda en llegar, debido al lag acumulado).
 
