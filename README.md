@@ -286,3 +286,111 @@ Topic donde se escriben mensajes "erróneos", son definidos por el usuario y se 
 Ejemplo: Precios negativos.
 
 ![DLQ Kafka](image-1.png)
+
+## 6 - Topologías comunes
+
+### SOURCE
+
+Transfiere datos de un repostorio (SQL, NoSQL, ...) a un topic de Kafka. 
+
+Los microservicios no tienen estado.
+
+Se utiliza normalmente para hacer migraciones de datos.
+
+Existen conectores para facilitar la transferencia -> [Kafka Connect.](https://docs.confluent.io/platform/current/connect/index.html)
+
+![Uso de Kafka Connect](image-2.png)
+
+### SINK
+
+Transfiere datos de un topic de Kafka a un repostorio (SQL, NoSQL, ...). 
+
+Los microservicios no tienen estado.
+
+Guardamos los datos en una base de datos para que puedan ser consumidos por una API.
+
+Existen conectores para facilitar la transferencia -> [Kafka Connect.](https://docs.confluent.io/platform/current/connect/index.html)
+
+![Uso de Kafka Connect](image-3.png)
+
+### PCS
+
+Lee un mensaje de un topic, realiza operaciones sobre él y lo escribe en otro topic. 
+
+Los microservicios no tienen estado.
+
+Operaciones: Renombrar campos, añadir nuevos con operaciones, ...
+
+![PCS](image-4.png)
+
+### PCSFLM
+
+Lee un mensaje de un topic y escribe N mensajes en otro topic.
+
+Idealmente los microservicios no tienen estado.
+
+Normalmente -> Saca tantos mensajes como elementos tenga un array de mensajes de entrada(explosionar o flatmappear).
+
+Ejemplo: Usuario compra N productos y en la salida tenemos N mensajes.
+
+![PCSFLM](image-5.png)
+
+### FILTER
+
+Lee un mensaje de un topi y lo escribe en otro si cumple ciertas condiciones.
+
+Los microservicios no tienen estado.
+
+Normalmente -> Deja pasar mensajes con determinado flag.
+
+![FILTER](image-6.png)
+
+### SPL(Splitter)
+
+Lee mensajes de un topic y lo escribe en uno u otro(de forma no exclusiva) dependiendo de ciertas condiciones.
+
+Los microservicios no tienen estado.
+
+Ejemplo: Dividir productos por número de promociones
+
+![SPL](image-7.png)
+
+### AGR
+
+Lee mensajes de un topic, los agrupa por una condición y escribe en la salida una lista con la agrupacion de mensajes.
+
+Los microservicios tienen estado.
+
+Ejemplo: Recibir <referencia, promoción> en la entrada y escribir <referencia>:<lista de promociones> en la salida.
+
+![AGR](image-8.png)
+
+### MIXBI
+
+Lee mensajes de dos topics, mezcla la informacion(join), y escribe un mensaje en el topic de salida.
+
+Los microservicios tienen estado.
+
+Ejemplo: 
+
+- Topic-in-0: "Datos de promocion X"
+- Topic-in-1: "A la referencia Y le afecta la promoción X"
+- Topic-out: Datos de la referencia Y junto con los datos de la promoción X"
+
+![MIXBI](image-9.png)
+
+### MIXTRI
+
+Lee de tres topics, hace dos join y escribe en el topic de salida.
+
+Los microservicios tienen estado.
+
+![MIXTRI](image-10.png)
+
+### FREE
+
+Topología libre, puede aplicar diferentes lógicas dependiendo de donde se reciba el mensaje.
+
+Los microservicios pueden tener o no estado.
+
+![FREE](image-11.png)
