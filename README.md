@@ -45,7 +45,7 @@ Topics = Temas != Tópicos
 
 Es un almacén de datos donde se van escribiendo los mensajes o eventos, relacionados con ese tema.
 
-![Ejemplos de Topics](imagenes/image.png)
+![Ejemplos de Topics](imagenes/EjemplosDeTopics.png)
 
 ---
 
@@ -61,7 +61,7 @@ El productor comienza a escribir los mensajes en el offset 0, debido a que no ha
 
 El consumidor ha leído los mensajes con el offset 0, 1 y 2, el 3 está en proceso y el 4 y 5 están en espera.
 
-![Lectura de mensajes](imagenes/image-1.png)
+![Lectura de mensajes](imagenes/LecturaDeMensajes.png)
 
 Tienen dos partes:
 
@@ -82,7 +82,7 @@ garantizar la integridad de los datos ante caída del líder.
 
 ### Apache Kafka vs Confluent Kafka
 
-![Apache Kafka vs Confluent Kafka](imagenes/image-3.png)
+![Apache Kafka vs Confluent Kafka](imagenes/Apache Kafka vs Confluent Kafka.png)
 
 [Apache Kafka vs Confluent Kafka: Most Thorough Comparison](https://double.cloud/blog/posts/2023/04/confluent-kafka-vs-apache-kafka/)
 
@@ -92,7 +92,7 @@ garantizar la integridad de los datos ante caída del líder.
 
 Cuanto más bajo es el nivel, más líneas de código se deben programar.
 
-![API que utiliza Kafka](imagenes/image-4.png)
+![API que utiliza Kafka](imagenes/API que utiliza Kafka.png)
 
 ## 2 - Eventos. Estructura y modelado
 
@@ -128,7 +128,7 @@ Se pasan modificaciones sobre la entidad.
 
 ### Tipo **fact** vs tipo **delta**
 
-![Diferencias entre fact y delta](imagenes/image-5.png)
+![Diferencias entre fact y delta](imagenes/Diferencias entre fact y delta.png)
 
 [Fact vs. Delta Event Types](https://developer.confluent.io/courses/event-design/fact-vs-delta-events/)
 
@@ -165,7 +165,7 @@ partición a la que va a ir.
 
 ```hash(KEY) % Número de Particiones = Particion resultante```
 
-![Función hash de las Particiones](imagenes/image-6.png)
+![Función hash de las Particiones](imagenes/Función hash de las Particiones.png)
 
 ---
 
@@ -176,7 +176,7 @@ Kafka es un sistema distribuido, pero tiene mecanismos para evitar la duplicidad
 La política más utilizada es la de At least once, en la que podemos tener mensajes duplicados, pero no afectará
 negativamente de forma severa al rendimiento del sistema.
 
-![Configuraciones de Brokers](imagenes/image-7.png)
+![Configuraciones de Brokers](imagenes/Configuraciones de Brokers.png)
 
 ## 4 - Consumer-groups
 
@@ -254,6 +254,8 @@ Implicaciones obvias del lag:
 - Tiempos de respuesta en caso de que afecten con los procesos de interacción con el usuario.
 - Consistencia eventual (El mensaje tarda en llegar, debido al lag acumulado).
 
+---
+
 ## 5 - Topics adicionales
 
 ### Changelog
@@ -263,15 +265,19 @@ Topic especial cuando trabajamos con estados. Se guarda información dentro del 
 El estado se guarda dentro del "pod", pero para tener una copia de seguridad se almacena dentro de Kafka en los topics
 changelog.
 
-![Changelog Topic](imagenes/image-12.png)
+![Changelog Topic](imagenes/Changelog Topic.png)
 
 Estos topic tienen tantas particiones como del que aparecen.
 
 Aparecen cuando pasamos de un "flujo/KStream" a una "tabla/KTable".
 
+---
+
 ### Repartition
 
 Aparecen cuando hacemos un cambio de clave en los mensajes(modificar, añadir o crear campo).
+
+---
 
 ### Iniciales
 
@@ -289,6 +295,8 @@ Lo mismo para sincronización.
 
 Se verá próximamente
 
+---
+
 ### Dead-Letter Queue (DLQ)
 
 Topic donde se escriben mensajes "erróneos", son definidos por el usuario y se deben a excepciones capturadas o que
@@ -296,7 +304,9 @@ pueden llevar a excepción.
 
 Ejemplo: Precios negativos.
 
-![DLQ Kafka](imagenes/image-13.png)
+![DLQ Kafka](imagenes/DLQ Kafka.png)
+
+---
 
 ## 6 - Topologías comunes
 
@@ -311,7 +321,9 @@ Se utiliza normalmente para hacer migraciones de datos.
 Existen conectores para facilitar la
 transferencia -> [Kafka Connect.](https://docs.confluent.io/platform/current/connect/index.html)
 
-![Uso de Kafka Connect](imagenes/image-14.png)
+![SOURCE](imagenes/SOURCE.png)
+
+---
 
 ### SINK
 
@@ -324,7 +336,9 @@ Guardamos los datos en una base de datos para que puedan ser consumidos por una 
 Existen conectores para facilitar la
 transferencia -> [Kafka Connect.](https://docs.confluent.io/platform/current/connect/index.html)
 
-![Uso de Kafka Connect](imagenes/image-15.png)
+![SINK](imagenes/SINK.png)
+
+---
 
 ### PCS
 
@@ -334,7 +348,9 @@ Los micros no tienen estado.
 
 Operaciones: Renombrar campos, añadir nuevos con operaciones, ...
 
-![PCS](imagenes/image-16.png)
+![PCS](imagenes/PCS.png)
+
+---
 
 ### PCSFLM
 
@@ -346,7 +362,9 @@ Normalmente → Saca tantos mensajes como elementos tenga un array de mensajes d
 
 Ejemplo: Usuario compra N productos y en la salida tenemos N mensajes.
 
-![PCSFLM](imagenes/image-17.png)
+![PCSFLM](imagenes/PCSFLM.png)
+
+---
 
 ### FILTER
 
@@ -356,7 +374,9 @@ Los micros no tienen estado.
 
 Normalmente → Deja pasar mensajes con determinado flag.
 
-![FILTER](imagenes/image-18.png)
+![FILTER](imagenes/FILTER.png)
+
+---
 
 ### SPL(Splitter)
 
@@ -366,7 +386,9 @@ Los micros no tienen estado.
 
 Ejemplo: Dividir productos por número de promociones
 
-![SPL](imagenes/image-19.png)
+![SPL](imagenes/SPL.png)
+
+---
 
 ### AGR
 
@@ -376,7 +398,9 @@ Los micros tienen estado.
 
 Ejemplo: Recibir <referencia, promoción> en la entrada y escribir <referencia>:<lista de promociones> en la salida.
 
-![AGR](imagenes/image-8.png)
+![AGR](imagenes/AGR.png)
+
+---
 
 ### MIXBI
 
@@ -390,7 +414,9 @@ Ejemplo:
 - Topic-in-1: "A la referencia Y le afecta la promoción X"
 - Topic-out: "Datos de la referencia Y junto con los datos de la promoción X"
 
-![MIXBI](imagenes/image-9.png)
+![MIXBI](imagenes/MIXBI.png)
+
+---
 
 ### MIXTRI
 
@@ -398,7 +424,9 @@ Lee de tres topics, hace dos join y escribe en el topic de salida.
 
 Los micros tienen estado.
 
-![MIXTRI](imagenes/image-10.png)
+![MIXTRI](imagenes/MIXTRI.png)
+
+---
 
 ### FREE
 
@@ -406,4 +434,138 @@ Topología libre, puede aplicar diferentes lógicas dependiendo de donde se reci
 
 Los micros pueden tener o no estado.
 
-![FREE](imagenes/image-11.png)
+![FREE](imagenes/FREE.png)
+
+---
+
+## 7 - Como interactuar con Kafka
+
+### Herramientas
+
+### API de productor/consumidor (low-level API)
+
+### API de KStreams (high-level API)
+
+## 8 - Operaciones con KStreams
+
+### peek
+
+### map
+
+### selectKey
+
+### mapValues
+
+### filter
+
+### aggregate
+
+### flatMap
+
+### split
+
+### groupByKey() + reduce() = toTable() (KTable)
+
+### join
+
+### left join
+
+---
+
+## 9 - Serialización y deserialización de eventos con AVRO
+
+La serialización es el proceso de convertir el estado de un objeto en un formato que se pueda almacenar o transportar
+
+### Que es AVRO
+
+- Formato de datos compacto y rápido.
+- Independiente del lenguaje de programación.
+- Proporciona una biblioteca para serializar y deserializar datos.
+- Compatible con sistemas de procesamiento de datos (Hadoop, Spark, Kafka, ...).
+
+---
+
+### Como usarlo
+
+- Añadir dependencia
+- Añadir plugin de compilación
+
+---
+
+## 10 - Schema Registry
+
+### Control de contratos (.avsc)
+
+- Representamos los DTO en .avsc para poder reconstruirlos en clases Java, trabajar con ellos, serializarlos o
+  deserializarlos en formato AVRO.
+- Se pueden hacer a mano o utilizar herramientas ([AVRO SCHEMA TOOLS](http://www.dataedu.ca/avro)).
+- Los contratos acaban en el Schema Registry, que se encarga de gestionarlos.
+- Si un productor intenta escribir en un topic un AVRO que no cumple el contrato, el Schema Registry lanza
+  SerializationException.
+
+![Control De Contratos](imagenes/controlDeContratos.png)
+
+---
+
+### Estrategias de compatibilidad
+
+![Estrategia De Compatibilidad](imagenes/estrategiaDeCompatibilidad.png)
+
+[Más información.](https://docs.confluent.io/platform/current/schema-registry/avro.html#compatibility-types)
+
+---
+
+### Que hacer si tenemos cambios incompatibles
+
+1 - Crear un nuevo topic con el nuevo contrato y consumirlo con un nuevo consumidor(más laboriosa y limpia).
+
+2 - Purgar el topic y borrar los esquemas(más rápida y sucia).
+
+---
+
+## 11 - Políticas de limpieza de topics
+
+### El problema de almacenamiento
+
+- Sin limpieza, los topics crecen indefinidamente.
+- Los mensajes se almacenan en disco, por lo que es caro mantenerlos.
+- Si no se borran o compactan, las búsquedas son muy costosas.
+
+---
+
+### Políticas de limpieza en detalle
+
+- Existen políticas de retención de mensajes:
+    - Por tiempo(retention.ms): Los mensajes se borran cuando pasa X tiempo(1 día, 1 minuto, ...).
+    - Por tamaño(retention.bytes): Se guarda hasta alcanzar un tamaño establecido(1 GB, 1TB, ...).
+
+- Estas configuraciones van de la mano de una política enfocada al borrado, cleanup.policy = delete.
+- En cuanto se cumple una de las dos condiciones, se borran los mensajes.
+-
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
